@@ -133,6 +133,7 @@ if __name__=="__main__":
                         beta = beta, mu = float(mu), filling=float(filling), 
                         primitives=model.units, reciprocal = kmesh.bz.units, 
                         ks = ks, path = path_vecs, path_plot = path_plot, path_ticks = path_ticks,
+                        contracted = ks,
                         bandwidth = np.array(bandwidth), bands = np.array([mdl.energies(k, hamiltonian) for k in path_vecs]))
 
     tasks = [(index, mu, fillings[index]) for index, mu in enumerate(mus)]
