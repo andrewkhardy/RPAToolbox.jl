@@ -42,9 +42,9 @@ function get_reciprocal_ks(data::Dict ; entry::String = "ks")::Vector{Vector{Flo
 end
 
 #####* returns a vector of (sublattice x spin) susceptibility matrices where the vector corresponds to different momentas.
-function combine_chis(data::Dict ; directions::Vector{Int}, subs::Int64)::Vector{Matrix{ComplexF64}}
+function combine_chis(data::Dict ; directions::Vector{Int}, subs::Int64, suffix::String="")::Vector{Matrix{ComplexF64}}
     directions = sort(directions)
-    data_labels = [labels[i] for i in directions]
+    data_labels = [labels[i] * suffix for i in directions]
     localDim = length(directions)
 
     chi_combined = [zeros(ComplexF64, subs*localDim, subs*localDim) for _ in 1:size(data[data_labels[begin]])[1]]

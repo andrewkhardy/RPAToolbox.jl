@@ -116,15 +116,12 @@ if __name__=="__main__":
 
         chi00 = br.bare_chi(beta, w_max, dlr_err, mu, hamiltonian)
         
-        if params["contract"]=="path":
-            ks_contract = path_vecs
-        else:
-            ks_contract = ks
-        
         output = {}
         for direction in params["directions"]:
-            chi = br.interpolate_chi_mat(chi00, direction, N, ks_contract)
-            output[labels[direction]] = chi
+            chi_grid = br.interpolate_chi_mat(chi00, direction, N, ks)
+            chi_path = br.interpolate_chi_mat(chi00, direction, N, path_vecs)
+            output[labels[direction]] = chi_grid
+            output[labels[direction] + "_path"] = chi_path
 
         print(f"contraction completed for mu = {mu}")
 
@@ -136,7 +133,6 @@ if __name__=="__main__":
                         beta = beta, mu = float(mu), filling=float(filling), 
                         primitives=model.units, reciprocal = kmesh.bz.units, 
                         ks = ks, path = path_vecs, path_plot = path_plot, path_ticks = path_ticks,
-                        contracted = ks_contract, 
                         bandwidth = np.array(bandwidth), bands = np.array([mdl.energies(k, hamiltonian) for k in path_vecs]))
 
     tasks = [(index, mu, fillings[index]) for index, mu in enumerate(mus)]
