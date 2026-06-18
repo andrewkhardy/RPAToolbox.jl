@@ -29,7 +29,7 @@ def bare_chi(beta:float, w_max: float, dlr_err: float, mu: float, ham):
     # g0_wk = lattice_dyson_g0_wk(mu=mu, e_k=ham, mesh=wmesh)
     # chi00_wk = imtime_bubble_chi0_wk(g0_wk, nw=1)
     
-    bmesh = MeshImFreq(beta=beta, S='Boson', n_iw=1)
+    bmesh = MeshImFreq(beta=beta, statistic='Boson', n_iw=1)
     chi00_wk = lindhard_chi00(ham, bmesh, mu=mu)
     return chi00_wk
 
