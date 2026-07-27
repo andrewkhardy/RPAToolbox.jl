@@ -5,6 +5,18 @@ import yaml
 import model as mdl
 import bare_response as br
 
+try:
+    import triqs.utility.mpi as triqs_mpi
+    if hasattr(triqs_mpi, 'size'):
+        mpi_size = triqs_mpi.size
+        mpi_rank = triqs_mpi.rank
+    else:
+        mpi_size = triqs_mpi.mpi.size
+        mpi_rank = triqs_mpi.mpi.rank
+except ImportError:
+    mpi_size = 1
+    mpi_rank = 0
+
 labels = {0 : "chi_NN", 1 : "chi_XX", 2 : "chi_YY", 3 : "chi_ZZ", 4 : "chi_NN"}
 
 
@@ -26,10 +38,12 @@ def resolve_scan_values(params: dict, beta: float, hamiltonian, kmesh, bwidth: t
 
     if "values" in params["mus"]:
         mus = np.asarray(params["mus"]["values"], dtype=float)
+    elif all(key in params["mus"] for key in ["min", "max", "n"]):
+        mus = np.linspace(float(params["mus"]["min"]), float(params["mus"]["max"]), int(params["mus"]["n"]))
     elif "n" in params["mus"]:
         mus = np.linspace(*bwidth, int(params["mus"]["n"]))
     else:
-        raise ValueError("mus must define either values or n.")
+        raise ValueError("mus must define either values, min/max/n, or n.")
 
     band = mdl.bands(hamiltonian, kmesh)
     fillings = np.array([mdl.filling(band, beta, float(mu)) for mu in mus], dtype=float)
@@ -97,18 +111,16 @@ if __name__=="__main__":
     params["fillings"]["values"] = [float(val) for val in fillings]
     params["fillings"]["n"] = int(len(fillings))
 
-    with open(args.input, 'w') as file:
-        yaml.dump(params, file)
+    if mpi_rank == 0:
+        with open(args.input, 'w') as file:
+            yaml.dump(params, file)
     
-    print("Starting TRIQS calculations...")
-    
-    try:
-        from triqs.utility.mpi import mpi
-        mpi_size = mpi.size
-        mpi_rank = mpi.rank
-    except ImportError:
-        mpi_size = 1
-        mpi_rank = 0
+    # Barrier to ensure all processes have read before rank 0 potentially overwrites it,
+    # though they should have read it on line 50.
+    if mpi_size > 1:
+        triqs_mpi.barrier()
+        
+    print(f"Rank {mpi_rank} starting TRIQS calculations...")
 
     def compute_for_filling(args_tuple):
         index, mu, filling = args_tuple

@@ -79,7 +79,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     using .RPAToolkit
 
     parsed_args = parse_commandline()
-    input = YAML.load_file(parsed_args["input"])
+    input = load_rpa_input(parsed_args["input"])
     runtime_input = deepcopy(input)
 
     model = load(input["unitcell"]["julia"])

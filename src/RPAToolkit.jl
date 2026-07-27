@@ -9,6 +9,10 @@ include("Preprocess.jl")
 using .Preprocess
 export dress_primitives, dress_reciprocal, combine_chis, get_reciprocal_ks
 
+include("InputParser.jl")
+using .InputParser
+export load_rpa_input
+
 include("Interactions.jl")
 using .Interactions
 export interaction
